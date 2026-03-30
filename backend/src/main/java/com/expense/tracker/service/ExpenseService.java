@@ -29,6 +29,7 @@ public class ExpenseService {
         expense.setTitle(expenseDto.getTitle());
         expense.setAmount(expenseDto.getAmount());
         expense.setCategory(expenseDto.getCategory());
+        expense.setType(expenseDto.getType() != null ? expenseDto.getType() : com.expense.tracker.entity.TransactionType.EXPENSE);
         expense.setDate(expenseDto.getDate());
 
         Expense saved = expenseRepository.save(expense);
@@ -58,6 +59,7 @@ public class ExpenseService {
             expense.getTitle(),
             expense.getAmount(),
             expense.getCategory(),
+            expense.getType(),
             expense.getDate()
         );
     }

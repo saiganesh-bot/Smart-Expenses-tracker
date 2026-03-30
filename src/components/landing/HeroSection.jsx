@@ -1,14 +1,15 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../../store/useStore';
+import { useAuthStore, useExpenseStore } from '../../store/useStore';
 
 export default function HeroSection() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
+  const { openExpenseModal } = useExpenseStore();
 
   const handleAddExpenses = () => {
     if (isAuthenticated) {
-      navigate('/dashboard');
+      openExpenseModal();
     } else {
       navigate('/login');
     }
@@ -16,7 +17,7 @@ export default function HeroSection() {
 
   const handleTrackExpenses = () => {
     if (isAuthenticated) {
-      navigate('/analytics');
+      navigate('/dashboard');
     } else {
       navigate('/login');
     }

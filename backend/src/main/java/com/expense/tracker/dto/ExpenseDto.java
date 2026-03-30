@@ -1,5 +1,6 @@
 package com.expense.tracker.dto;
 
+import com.expense.tracker.entity.TransactionType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,5 +17,6 @@ public class ExpenseDto {
     private String title;
     private BigDecimal amount;
     private String category;
+    private TransactionType type;
     private LocalDate date;
 }

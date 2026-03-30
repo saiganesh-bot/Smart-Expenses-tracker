@@ -4,14 +4,14 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.LocalDate;
 
 @Entity
-@Table(name = "expenses")
+@Table(name = "goals")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Expense {
+@Builder
+public class Goal {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,26 +22,27 @@ public class Expense {
     private User user;
 
     @Column(nullable = false)
-    private String title;
+    private String name;
 
     @Column(nullable = false)
-    private BigDecimal amount;
+    private BigDecimal targetAmount;
 
     @Column(nullable = false)
-    private String category;
+    @Builder.Default
+    private BigDecimal currentAmount = BigDecimal.ZERO;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private TransactionType type = TransactionType.EXPENSE;
-
-    @Column(nullable = false)
-    private LocalDate date;
+    @Column
+    private BigDecimal monthlyOverride;
 
     @Column(name = "created_at", nullable = false, updatable = false)
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
-    
+
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        if (this.currentAmount == null) {
+            this.currentAmount = BigDecimal.ZERO;
+        }
+        this.createdAt = LocalDateTime.now();
     }
 }

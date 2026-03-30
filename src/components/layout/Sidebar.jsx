@@ -1,84 +1,56 @@
-import { NavLink, useNavigate } from 'react-router-dom';
-import { Home, PieChart, ArrowLeftRight, UserRound, LogOut, Wallet } from 'lucide-react';
-import { useAuthStore } from '../../store/useStore';
-import clsx from 'clsx';
+import React from 'react';
+import { NavLink } from 'react-router-dom';
+import { LayoutDashboard, Receipt, BarChart3, User, LogOut } from 'lucide-react';
+import Logo from '../common/Logo';
 import { motion } from 'framer-motion';
+import { useAuthStore } from '../../store/useStore';
 
-const navItems = [
-  { path: '/dashboard', label: 'Dashboard', icon: Home },
-  { path: '/analytics', label: 'Analytics', icon: PieChart },
-  { path: '/transactions', label: 'Transactions', icon: ArrowLeftRight },
-  { path: '/categories', label: 'Categories', icon: UserRound },
-];
+const SidebarItem = ({ to, icon: Icon, label }) => (
+  <NavLink
+    to={to}
+    className={({ isActive }) =>
+      `flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group ${
+        isActive
+          ? 'bg-primary/10 text-primary font-semibold'
+          : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+      }`
+    }
+  >
+    <Icon size={22} className="transition-transform duration-300 group-hover:scale-110" />
+    <span>{label}</span>
+  </NavLink>
+);
 
 export default function Sidebar() {
   const { logout, user } = useAuthStore();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
 
   return (
-    <aside className="hidden w-64 flex-col border-r border-gray-100 bg-white p-6 shadow-sm md:flex lg:w-72">
-      <div className="mb-10 flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500 text-white shadow-md">
-          <Wallet size={20} />
-        </div>
-        <div>
-          <h1 className="text-lg font-bold text-gray-800">Smart Tracker</h1>
-        </div>
-      </div>
+    <aside className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-100 flex flex-col p-6 z-40 hidden md:flex">
+        <Logo className="mb-4" />
 
-      <nav className="flex-1">
-        <ul className="flex flex-col gap-2">
-          {navItems.map((item) => (
-            <li key={item.path}>
-              <NavLink
-                to={item.path}
-                className={({ isActive }) =>
-                  clsx(
-                    'group relative flex items-center gap-4 rounded-xl px-4 py-3 font-medium transition-colors',
-                    isActive ? 'text-blue-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
-                  )
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    {isActive && (
-                      <motion.div
-                        layoutId="active-sidebar"
-                        className="absolute inset-0 rounded-xl bg-blue-50"
-                        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                      />
-                    )}
-                    <item.icon size={20} className={clsx('relative z-10', isActive ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-600')} />
-                    <span className="relative z-10">{item.label}</span>
-                  </>
-                )}
-              </NavLink>
-            </li>
-          ))}
-        </ul>
+      <nav className="flex-1 space-y-2">
+        <SidebarItem to="/dashboard" icon={LayoutDashboard} label="Dashboard" />
+        <SidebarItem to="/transactions" icon={Receipt} label="Transactions" />
+        <SidebarItem to="/analytics" icon={BarChart3} label="Analytics" />
+        <SidebarItem to="/profile" icon={User} label="Profile" />
       </nav>
 
-      <div className="mt-auto flex flex-col gap-4 border-t border-gray-100 pt-6">
-        <div className="flex items-center gap-3 px-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-600">
-            {user?.name?.charAt(0) || 'U'}
+      <div className="mt-auto pt-6 border-t border-gray-50">
+        <div className="flex items-center gap-3 px-2 mb-6">
+          <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-primary font-bold">
+            {user?.name?.[0] || 'U'}
           </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-bold text-gray-800 line-clamp-1">{user?.name}</span>
-            <span className="text-xs text-gray-400 line-clamp-1">{user?.email}</span>
+          <div className="flex flex-col overflow-hidden">
+            <span className="text-sm font-semibold text-gray-900 truncate">{user?.name || 'User'}</span>
+            <span className="text-xs text-gray-500 truncate">{user?.email || 'user@example.com'}</span>
           </div>
         </div>
         <button
-          onClick={handleLogout}
-          className="flex items-center gap-3 rounded-xl px-4 py-3 font-medium text-red-500 transition-colors hover:bg-red-50"
+          onClick={logout}
+          className="flex items-center gap-3 px-4 py-3 rounded-2xl w-full text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all duration-300"
         >
-          <LogOut size={20} />
-          <span>Logout</span>
+          <LogOut size={22} />
+          <span className="font-medium">Logout</span>
         </button>
       </div>
     </aside>
