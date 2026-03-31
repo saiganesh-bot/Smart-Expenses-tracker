@@ -13,6 +13,7 @@ import java.util.List;
 @RequestMapping("/api/expenses")
 public class ExpenseController {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ExpenseController.class);
     private final ExpenseService expenseService;
 
     public ExpenseController(ExpenseService expenseService) {
@@ -21,13 +22,16 @@ public class ExpenseController {
 
     @PostMapping
     public ResponseEntity<ExpenseDto> addExpense(@RequestBody ExpenseDto expenseDto, Authentication authentication) {
+        logger.info("User {} is adding a new expense: {}", authentication.getName(), expenseDto.getTitle());
         ExpenseDto saved = expenseService.addExpense(expenseDto, authentication.getName());
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
     @GetMapping
     public ResponseEntity<List<ExpenseDto>> getExpenses(Authentication authentication) {
+        logger.info("User {} is fetching expenses", authentication.getName());
         List<ExpenseDto> expenses = expenseService.getUserExpenses(authentication.getName());
+        logger.info("Returning {} expenses for user {}", expenses.size(), authentication.getName());
         return ResponseEntity.ok(expenses);
     }
 

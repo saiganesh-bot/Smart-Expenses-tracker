@@ -14,6 +14,7 @@ export default function Dashboard() {
   const { user } = useAuthStore();
 
   useEffect(() => {
+    console.log('[Dashboard] Mounting, fetching data...');
     fetchExpenses();
     fetchGoals();
   }, [fetchExpenses, fetchGoals]);

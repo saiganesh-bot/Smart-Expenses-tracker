@@ -25,12 +25,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.customUserDetailsService = customUserDetailsService;
     }
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         String token = getJWTfromRequest(request);
+        logger.info("Extracting token from request: {}", (token != null ? "Token Found" : "Token Not Found"));
+        
         if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
+            logger.info("Token validated successfully.");
             String username = tokenProvider.getUsernameFromJWT(token);
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
@@ -38,6 +43,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             );
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            logger.info("Authentication set in SecurityContext for user: {}", username);
+        } else if (StringUtils.hasText(token)) {
+            logger.warn("Token validation failed.");
         }
         filterChain.doFilter(request, response);
     }

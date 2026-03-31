@@ -2,8 +2,11 @@ import { create } from 'zustand';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 
+const savedUser = localStorage.getItem('user');
+const initialUser = savedUser ? JSON.parse(savedUser) : null;
+
 export const useAuthStore = create((set) => ({
-  user: null,
+  user: initialUser,
   token: localStorage.getItem('token') || null,
   isAuthenticated: !!localStorage.getItem('token'),
   loading: false,
@@ -13,12 +16,24 @@ export const useAuthStore = create((set) => ({
     try {
       const response = await api.post('/auth/login', { email, password });
       const { accessToken, name } = response.data;
+      
+      const userData = { name, email };
       localStorage.setItem('token', accessToken);
-      set({ token: accessToken, user: { name, email }, isAuthenticated: true });
+      localStorage.setItem('user', JSON.stringify(userData));
+      
+      set({ token: accessToken, user: userData, isAuthenticated: true });
       toast.success('Logged in successfully!');
+      
+      // Auto-fetch expenses after login
+      useExpenseStore.getState().fetchExpenses();
+      useExpenseStore.getState().fetchGoals();
+      
       return true;
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Login failed');
+      const status = error.response?.status;
+      const message = error.response?.data?.message || 'Login failed';
+      console.error(`Login error [${status}]:`, message);
+      toast.error(message);
       return false;
     } finally {
       set({ loading: false });
@@ -41,6 +56,7 @@ export const useAuthStore = create((set) => ({
 
   logout: () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     set({ user: null, token: null, isAuthenticated: false });
     toast.success('Logged out');
   }
@@ -60,10 +76,14 @@ export const useExpenseStore = create((set, get) => ({
   fetchExpenses: async () => {
     set({ loading: true });
     try {
+      console.log('Fetching expenses...');
       const response = await api.get('/expenses');
       set({ expenses: response.data });
-    } catch {
-      toast.error('Failed to fetch expenses');
+      console.log(`Fetched ${response.data.length} expenses`);
+    } catch (error) {
+      const status = error.response?.status;
+      console.error(`Fetch expenses error [${status}]:`, error.message);
+      toast.error(`Failed to fetch expenses (${status || 'Network Error'})`);
     } finally {
       set({ loading: false });
     }

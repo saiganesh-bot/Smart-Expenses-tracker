@@ -8,7 +8,8 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "expenses")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Expense {
@@ -31,6 +32,7 @@ public class Expense {
     private String category;
 
     @Column(nullable = false)
+    @org.hibernate.annotations.ColumnDefault("'EXPENSE'")
     @Enumerated(EnumType.STRING)
     private TransactionType type = TransactionType.EXPENSE;
 
